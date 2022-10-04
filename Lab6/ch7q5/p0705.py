@@ -1,4 +1,3 @@
-# p1shell.py parser
 import sys, time   # sys needed to access cmd line args and sys.exit()
 
 class Token:
@@ -9,8 +8,9 @@ class Token:
       self.lexeme = lexeme     # token in string form
 
 # globals grade
-trace = True        # controls token trace
-grade = False       # set to True to create output to be graded
+stmntcounter = 0
+trace = False        # controls token trace
+grade = True      # set to True to create output to be graded
 source = ''          # receives entire source program
 sourceindex = 0      # index into the source code in source
 line = 0             # current line number 
@@ -20,6 +20,7 @@ tokenindex = -1      # index of current token in tokens
 token = None         # current token
 prevchar = '\n'      # '\n' in prevchar signals start of new line
 blankline = True     # reset to False if line is not blank
+
 
 # constants that represent token categories
 EOF           = 0    # end of file
@@ -82,7 +83,9 @@ def main():
       tokenizer()    # tokenize source code in source
       if trace:
          print('------------------------------------------- Program output')
+         
       parser()
+      print("Number of statements in the program: "+ str(stmntcounter))
 
    # on an error, display an error message
    # token is the token object on which the error was detected
@@ -100,6 +103,7 @@ def main():
 def tokenizer():
    global token
    curchar = ' '          # prime curchar with space
+   
 
    while True:
       # skip whitespace but not newlines
@@ -182,7 +186,9 @@ def getchar():
 ####################
 # advances to the next token in the list tokens
 def advance():
-   global token, tokenindex 
+
+   global token, tokenindex
+
    tokenindex += 1
    if tokenindex >= len(tokenlist):
       raise RuntimeError('Unexpected end of file')
@@ -190,9 +196,12 @@ def advance():
 
 # advances if current token is the expected token
 def consume(expectedcat):
-   if (token.category == expectedcat):
-      advance()
-   else:
+    global stmntcounter
+    if (token.category == expectedcat):
+        if(expectedcat == NEWLINE):
+            stmntcounter+=1
+        advance()
+    else:
      raise RuntimeError('Expecting ' + catnames[expectedcat])
 
 # top level function of parser
@@ -210,8 +219,9 @@ def program():
         raise RuntimeError('Expecting end of file')       
 
 def stmt():
-   simplestmt()
-   consume(NEWLINE)
+    simplestmt()
+    consume(NEWLINE)
+    
 
 def simplestmt():
     if token.category == NAME:
@@ -267,6 +277,7 @@ def factor():
 ####################
 # start of program #
 ####################
+
 main()           # call main()
 if grade:        # display parser code if grade is True
  # display parser source code

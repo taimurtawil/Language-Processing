@@ -1,4 +1,7 @@
-# p1shell.py parser
+Mon Oct  3 16:21:50 2022                      Taimur Tawil
+Parser = p0704.py
+Input file  = p0704.in
+------------------------------------------- p0704.py
 import sys, time   # sys needed to access cmd line args and sys.exit()
 
 class Token:
@@ -9,8 +12,8 @@ class Token:
       self.lexeme = lexeme     # token in string form
 
 # globals grade
-trace = True        # controls token trace
-grade = False       # set to True to create output to be graded
+trace = False        # controls token trace
+grade = True       # set to True to create output to be graded
 source = ''          # receives entire source program
 sourceindex = 0      # index into the source code in source
 line = 0             # current line number 
@@ -32,20 +35,21 @@ RIGHTPAREN    = 6    # ')'
 PLUS          = 7    # '+'
 MINUS         = 8    # '-'
 TIMES         = 9    # '*'
-NEWLINE       = 10   # end of line
-ERROR         = 11   # if not any of the above, then error
+DIVISION      = 10
+NEWLINE       = 11   # end of line
+ERROR         = 12   # if not any of the above, then error
 
 # displayable names for each token category
 catnames = ['EOF', 'print', 'UNSIGNEDINT', 'NAME', 'ASSIGNOP',
             'LEFTPAREN', 'RIGHTPAREN', 'PLUS', 'MINUS',
-            'TIMES', 'NEWLINE','ERROR']
+            'TIMES', 'DIVISION', 'NEWLINE','ERROR']
 
 # keywords and their token categories}
 keywords = {'print': PRINT}
 
 # one-character tokens and their token categories
 smalltokens = {'=':ASSIGNOP, '(':LEFTPAREN, ')':RIGHTPAREN,
-               '+':PLUS, '-':MINUS, '*':TIMES, '\n':NEWLINE, '':EOF}
+               '+':PLUS, '-':MINUS, '*':TIMES, '/':DIVISION, '\n':NEWLINE, '':EOF}
 
 #################
 # main function #
@@ -235,15 +239,25 @@ def printstmt():
 
 def expr():
     term()
-    while token.category == PLUS:
-        advance() # no need for consume() here 5 term()
-        term()
+    if(token.category == PLUS):
+        while token.category == PLUS:
+            advance() # no need for consume() here 5 term()
+            term()
+    if(token.category == MINUS):
+        while token.category == MINUS:
+            advance()
+            term()
 
 def term():
     factor()
-    while token.category == TIMES:
-        advance() # no need for consume() here 
-        factor()
+    if(token.category == TIMES):
+        while token.category == TIMES:
+            advance() # no need for consume() here 
+            factor()
+    if(token.category == DIVISION):
+        while token.category == DIVISION:
+            advance()
+            factor()
 
 
 def factor():
